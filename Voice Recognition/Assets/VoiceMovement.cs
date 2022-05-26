@@ -19,7 +19,9 @@ public class VoiceMovement : MonoBehaviour
         actions.Add("back", Backward);
 
         Debug.Log("Creating KeywordRecognizer");
-        keywordRecognizer = new KeywordRecognizer(actions.Keys.ToArray());
+        // confidence level in speech recognition is how well the system recognized the word or phrase
+        // Decreasing the confidence level in my speech recognizer made it easier for Unity speech recognizer to do the action
+        keywordRecognizer = new KeywordRecognizer(actions.Keys.ToArray(), ConfidenceLevel.Low);
         keywordRecognizer.OnPhraseRecognized += RecognizedSpeech;
         Debug.Log("Starting KeywordRecognizer");
         keywordRecognizer.Start();
@@ -27,8 +29,15 @@ public class VoiceMovement : MonoBehaviour
 
     private void RecognizedSpeech(PhraseRecognizedEventArgs speech)
     {
-        Debug.Log(speech.text);
-        actions[speech.text].Invoke();
+        Debug.Log("Recognized Speech");
+        if(actions.TryGetValue(speech.text, out Action keywordAction)) {
+            Debug.Log(speech.text);
+            actions[speech.text].Invoke();
+        }
+        else {
+            Debug.Log("Keyword Not Heard or Recognized");
+        }
+        
     }
 
     private void Forward()
